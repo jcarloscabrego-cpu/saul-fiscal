@@ -1,0 +1,1077 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Saúl — Tu asesor fiscal</title>
+<link href="https://fonts.googleapis.com/css2?family=Sora:wght@300;400;500;600;700&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+:root {
+  --v:#0A5C47;--vc:#1D9E75;--vs:#E1F5EE;
+  --f:#F7F5F0;--b:#FFFFFF;--t:#1A1A18;
+  --ts:#6B6B65;--bo:#E2E0DA;--am:#F5C842;
+  --rs:#FAECE7;--r:#993C1D;
+  --mono:'DM Mono',monospace;--sans:'Sora',sans-serif;
+}
+*{box-sizing:border-box;margin:0;padding:0;}
+body{font-family:var(--sans);background:var(--f);color:var(--t);min-height:100vh;}
+
+/* ── Pantallas ── */
+.screen{display:none;min-height:100vh;}
+.screen.on{display:flex;}
+
+/* ══ AUTH ══════════════════════════════════════════════ */
+.auth-screen{align-items:stretch;}
+.auth-left{
+  width:420px;flex-shrink:0;background:var(--v);
+  display:flex;flex-direction:column;justify-content:space-between;padding:52px 44px;
+}
+@media(max-width:740px){.auth-left{display:none;}}
+.brand{font-size:26px;font-weight:700;color:white;letter-spacing:-.5px;}
+.brand span{color:var(--am);}
+.brand-sub{font-size:12px;color:rgba(255,255,255,.5);margin-top:4px;letter-spacing:.03em;}
+.feats{display:flex;flex-direction:column;gap:22px;margin-top:52px;}
+.feat{display:flex;gap:14px;align-items:flex-start;}
+.feat-ic{width:36px;height:36px;background:rgba(255,255,255,.12);border-radius:9px;display:flex;align-items:center;justify-content:center;font-size:16px;flex-shrink:0;}
+.feat-t{font-size:13px;font-weight:500;color:white;margin-bottom:3px;}
+.feat-d{font-size:11px;color:rgba(255,255,255,.5);line-height:1.55;}
+.auth-footer{font-size:10px;color:rgba(255,255,255,.25);}
+
+.auth-right{flex:1;display:flex;align-items:center;justify-content:center;padding:48px 28px;}
+.auth-box{width:100%;max-width:400px;}
+.auth-tabs{display:flex;border-bottom:2px solid var(--bo);margin-bottom:28px;}
+.auth-tab{flex:1;text-align:center;padding:11px;font-size:13px;font-weight:500;color:var(--ts);cursor:pointer;border-bottom:2px solid transparent;margin-bottom:-2px;transition:all .2s;}
+.auth-tab.active{color:var(--v);border-bottom-color:var(--v);}
+.auth-title{font-size:22px;font-weight:600;margin-bottom:5px;}
+.auth-sub{font-size:13px;color:var(--ts);margin-bottom:28px;line-height:1.65;}
+
+.field{margin-bottom:17px;}
+.field label{display:block;font-size:11px;font-weight:500;color:var(--ts);text-transform:uppercase;letter-spacing:.06em;margin-bottom:7px;}
+.field input,.field select{width:100%;padding:12px 14px;border:1.5px solid var(--bo);border-radius:10px;font-size:14px;font-family:var(--sans);background:var(--b);color:var(--t);outline:none;transition:border .2s;}
+.field input:focus,.field select:focus{border-color:var(--vc);background:var(--b);}
+.field input.mono{font-family:var(--mono);letter-spacing:.04em;}
+.field-hint{font-size:11px;color:var(--ts);margin-top:5px;}
+
+.pwd-wrap{position:relative;}
+.pwd-eye{position:absolute;right:13px;top:50%;transform:translateY(-50%);background:none;border:none;cursor:pointer;color:var(--ts);font-size:16px;}
+.pwd-bars{display:flex;gap:4px;margin-top:7px;}
+.pwd-bar{height:3px;flex:1;border-radius:2px;background:var(--bo);transition:background .3s;}
+
+.reg-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:18px;}
+.reg-opt{border:1.5px solid var(--bo);border-radius:10px;padding:13px;cursor:pointer;transition:all .2s;}
+.reg-opt:hover{border-color:var(--vc);}
+.reg-opt.sel{border-color:var(--v);background:var(--vs);}
+.reg-opt-n{font-size:12px;font-weight:600;color:var(--t);margin-bottom:3px;}
+.reg-opt-d{font-size:10px;color:var(--ts);line-height:1.45;}
+.reg-opt.sel .reg-opt-n{color:var(--v);}
+
+.btn-main{width:100%;padding:13px;background:var(--v);color:white;border:none;border-radius:10px;font-size:14px;font-family:var(--sans);font-weight:600;cursor:pointer;transition:background .15s;margin-top:4px;letter-spacing:.01em;}
+.btn-main:hover{background:var(--vc);}
+.btn-link{background:none;border:none;color:var(--vc);font-size:13px;cursor:pointer;font-family:var(--sans);font-weight:500;}
+.divider{display:flex;align-items:center;gap:12px;margin:20px 0;color:var(--ts);font-size:12px;}
+.divider::before,.divider::after{content:'';flex:1;height:1px;background:var(--bo);}
+.alert-b{border-radius:10px;padding:11px 14px;font-size:12px;line-height:1.6;margin-bottom:16px;display:none;}
+.alert-b.err{background:var(--rs);color:var(--r);}
+.alert-b.suc{background:var(--vs);color:var(--v);}
+.alert-b.on{display:block;}
+
+/* ══ DASHBOARD ══════════════════════════════════════════ */
+.dash-screen{flex-direction:row;}
+.sidebar{width:248px;flex-shrink:0;background:var(--v);display:flex;flex-direction:column;position:sticky;top:0;height:100vh;overflow-y:auto;}
+.sb-logo{padding:26px 22px 22px;border-bottom:1px solid rgba(255,255,255,.1);}
+.sb-logo-mark{font-size:20px;font-weight:700;color:white;letter-spacing:-.5px;}
+.sb-logo-mark span{color:var(--am);}
+.sb-logo-sub{font-size:10px;opacity:.45;margin-top:3px;text-transform:uppercase;letter-spacing:.06em;}
+.sb-user{padding:18px 22px;border-bottom:1px solid rgba(255,255,255,.1);}
+.sb-rfc{font-family:var(--mono);font-size:10px;opacity:.4;margin-bottom:4px;}
+.sb-name{font-size:13px;font-weight:500;color:white;}
+.sb-regime{display:inline-block;font-size:10px;background:rgba(255,255,255,.15);padding:2px 9px;border-radius:20px;color:white;margin-top:5px;}
+.sb-nav{flex:1;padding:14px 10px;display:flex;flex-direction:column;gap:2px;}
+.sb-item{display:flex;align-items:center;gap:10px;padding:10px 12px;border-radius:8px;font-size:12px;cursor:pointer;color:rgba(255,255,255,.6);transition:background .15s;}
+.sb-item:hover{background:rgba(255,255,255,.08);color:white;}
+.sb-item.active{background:rgba(255,255,255,.15);color:white;font-weight:500;}
+.sb-item-ic{font-size:15px;}
+.sb-badge{margin-left:auto;background:var(--am);color:var(--v);font-size:10px;font-weight:600;padding:1px 6px;border-radius:10px;}
+.sb-footer{padding:14px 22px;border-top:1px solid rgba(255,255,255,.1);display:flex;justify-content:space-between;align-items:center;}
+.sb-footer-txt{font-size:10px;opacity:.25;color:white;}
+.sb-logout{background:none;border:none;font-size:11px;color:rgba(255,255,255,.35);cursor:pointer;font-family:var(--sans);}
+.sb-logout:hover{color:rgba(255,255,255,.8);}
+
+.dash-main{flex:1;display:flex;flex-direction:column;overflow:hidden;}
+.dash-header{background:var(--b);border-bottom:1px solid var(--bo);padding:0 30px;height:60px;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:10;flex-shrink:0;}
+.dash-header-title{font-size:15px;font-weight:600;}
+.dash-header-sub{font-size:11px;color:var(--ts);}
+.btn-action{background:var(--v);color:white;border:none;padding:8px 18px;border-radius:8px;font-size:12px;font-family:var(--sans);font-weight:600;cursor:pointer;transition:background .15s;}
+.btn-action:hover{background:var(--vc);}
+
+.dash-section{display:none;padding:26px 30px;flex:1;overflow-y:auto;}
+.dash-section.on{display:block;}
+
+/* Alerta vencimiento */
+.dash-alert{background:var(--am);border-radius:12px;padding:14px 18px;display:flex;align-items:center;gap:14px;margin-bottom:22px;}
+.da-text{flex:1;}
+.da-title{font-size:13px;font-weight:600;}
+.da-desc{font-size:11px;opacity:.7;margin-top:2px;}
+.da-btn{background:var(--v);color:white;border:none;padding:7px 15px;border-radius:8px;font-size:12px;font-family:var(--sans);font-weight:500;cursor:pointer;white-space:nowrap;}
+
+/* Stats */
+.stats{display:grid;grid-template-columns:repeat(3,1fr);gap:14px;margin-bottom:22px;}
+.stat{background:var(--b);border:1px solid var(--bo);border-radius:12px;padding:18px 20px;}
+.stat-lbl{font-size:10px;text-transform:uppercase;letter-spacing:.07em;color:var(--ts);font-weight:500;margin-bottom:8px;}
+.stat-val{font-size:23px;font-weight:700;letter-spacing:-.5px;font-family:var(--mono);}
+.stat-val.v{color:var(--v);}
+.stat-val.r{color:var(--r);}
+.stat-sub{font-size:11px;color:var(--ts);margin-top:5px;}
+.stat-bar{height:3px;background:var(--bo);border-radius:2px;margin-top:12px;}
+.stat-bar-fill{height:3px;border-radius:2px;transition:width .8s ease;}
+
+/* Grid 2 cols */
+.g2{display:grid;grid-template-columns:1fr 1fr;gap:18px;margin-bottom:22px;}
+
+/* Chat */
+.chat-panel{background:var(--b);border:1px solid var(--bo);border-radius:12px;display:flex;flex-direction:column;height:430px;}
+.cp-head{padding:14px 18px;border-bottom:1px solid var(--bo);display:flex;align-items:center;gap:10px;}
+.cp-av{width:30px;height:30px;background:var(--v);border-radius:50%;display:flex;align-items:center;justify-content:center;color:white;font-weight:700;font-size:12px;flex-shrink:0;}
+.cp-name{font-size:13px;font-weight:500;}
+.cp-status{font-size:10px;color:var(--vc);display:flex;align-items:center;gap:4px;}
+.dot-g{width:6px;height:6px;background:var(--vc);border-radius:50%;}
+.cp-msgs{flex:1;overflow-y:auto;padding:14px 18px;display:flex;flex-direction:column;gap:10px;}
+.msg{max-width:86%;}
+.msg.s{align-self:flex-start;}
+.msg.u{align-self:flex-end;}
+.mb{padding:9px 13px;border-radius:12px;font-size:12px;line-height:1.65;}
+.msg.s .mb{background:var(--f);color:var(--t);border-bottom-left-radius:3px;}
+.msg.u .mb{background:var(--v);color:white;border-bottom-right-radius:3px;}
+.mt{font-size:10px;color:var(--ts);margin-top:3px;padding:0 3px;}
+.msg.u .mt{text-align:right;}
+.typing{align-self:flex-start;}
+.typing .mb{display:flex;gap:4px;align-items:center;padding:11px 15px;}
+.td{width:6px;height:6px;background:var(--ts);border-radius:50%;animation:bounce .8s infinite;}
+.td:nth-child(2){animation-delay:.15s;}
+.td:nth-child(3){animation-delay:.3s;}
+@keyframes bounce{0%,80%,100%{transform:translateY(0)}40%{transform:translateY(-6px)}}
+.sugs{display:flex;flex-wrap:wrap;gap:5px;padding:8px 16px;border-top:1px solid var(--bo);}
+.sug{font-size:10px;padding:4px 10px;border:1px solid var(--bo);border-radius:20px;cursor:pointer;color:var(--ts);background:var(--f);font-family:var(--sans);transition:all .15s;}
+.sug:hover{border-color:var(--vc);color:var(--v);}
+.cp-inp{padding:10px 14px;border-top:1px solid var(--bo);display:flex;gap:8px;}
+.ci{flex:1;border:1px solid var(--bo);border-radius:8px;padding:8px 12px;font-size:12px;font-family:var(--sans);outline:none;background:var(--f);}
+.ci:focus{border-color:var(--vc);}
+.cs{background:var(--v);color:white;border:none;border-radius:8px;width:34px;height:34px;cursor:pointer;display:flex;align-items:center;justify-content:center;flex-shrink:0;transition:background .15s;}
+.cs:hover{background:var(--vc);}
+.cs:disabled{opacity:.4;cursor:default;}
+
+/* Historial */
+.hist-panel{background:var(--b);border:1px solid var(--bo);border-radius:12px;overflow:hidden;height:430px;display:flex;flex-direction:column;}
+.ph{padding:14px 18px;border-bottom:1px solid var(--bo);font-size:13px;font-weight:500;display:flex;justify-content:space-between;align-items:center;}
+.ph-link{font-size:11px;color:var(--vc);cursor:pointer;font-weight:400;}
+.hl{flex:1;overflow-y:auto;}
+.hi{padding:12px 18px;border-bottom:1px solid var(--bo);display:flex;align-items:center;gap:12px;cursor:pointer;transition:background .1s;}
+.hi:hover{background:var(--f);}
+.hi:last-child{border-bottom:none;}
+.hi-mes{font-family:var(--mono);font-size:10px;color:var(--ts);width:44px;flex-shrink:0;}
+.hi-inf{flex:1;}
+.hi-tit{font-size:12px;font-weight:500;}
+.hi-desc{font-size:10px;color:var(--ts);margin-top:2px;}
+.hi-amt{font-family:var(--mono);font-size:12px;font-weight:600;}
+.hi-amt.p{color:var(--v);}
+.hi-amt.pend{color:var(--r);}
+.pill{display:inline-block;font-size:9px;padding:2px 7px;border-radius:10px;font-weight:500;}
+.pill-ok{background:var(--vs);color:var(--v);}
+.pill-pend{background:#FAEEDA;color:#633806;}
+
+/* Facturas */
+.toolbar{display:flex;align-items:center;gap:10px;margin-bottom:16px;flex-wrap:wrap;}
+.btn-exp{display:flex;align-items:center;gap:6px;padding:8px 14px;border:1.5px solid var(--bo);border-radius:8px;font-size:12px;font-family:var(--sans);cursor:pointer;background:var(--b);color:var(--t);transition:all .15s;font-weight:500;}
+.btn-exp:hover{border-color:var(--v);color:var(--v);}
+.fac-tbl{width:100%;border-collapse:collapse;background:var(--b);border-radius:12px;overflow:hidden;border:1px solid var(--bo);}
+.fac-tbl th{font-size:10px;text-transform:uppercase;letter-spacing:.06em;color:var(--ts);font-weight:500;padding:10px 14px;text-align:left;border-bottom:1px solid var(--bo);background:var(--f);}
+.fac-tbl td{padding:10px 14px;font-size:12px;border-bottom:1px solid var(--bo);}
+.fac-tbl tr:last-child td{border-bottom:none;}
+.fac-tbl tr:hover td{background:var(--f);}
+.mono-small{font-family:var(--mono);font-size:10px;color:var(--ts);}
+.amt{font-family:var(--mono);font-weight:500;}
+
+/* Sueldos y Salarios */
+.ss-card{background:var(--b);border:1px solid var(--bo);border-radius:12px;padding:26px;margin-bottom:18px;}
+.ss-title{font-size:15px;font-weight:600;margin-bottom:5px;}
+.ss-sub{font-size:12px;color:var(--ts);margin-bottom:22px;line-height:1.65;}
+.ss-grid{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-bottom:18px;}
+.ss-f{display:flex;flex-direction:column;gap:6px;}
+.ss-f label{font-size:10px;font-weight:500;color:var(--ts);text-transform:uppercase;letter-spacing:.06em;}
+.ss-f input{padding:10px 12px;border:1.5px solid var(--bo);border-radius:9px;font-size:13px;font-family:var(--sans);background:var(--f);color:var(--t);outline:none;transition:border .2s;}
+.ss-f input:focus{border-color:var(--vc);background:var(--b);}
+.ss-sep{font-size:10px;font-weight:600;text-transform:uppercase;letter-spacing:.07em;color:var(--ts);margin:18px 0 12px;padding-bottom:7px;border-bottom:1px solid var(--bo);}
+.res-box{border-radius:12px;padding:22px 24px;color:white;margin-bottom:16px;}
+.res-box.favor{background:var(--vc);}
+.res-box.pagar{background:var(--r);}
+.res-box.cero{background:var(--v);}
+.res-lbl{font-size:11px;opacity:.75;margin-bottom:4px;text-transform:uppercase;letter-spacing:.05em;}
+.res-amt{font-size:32px;font-weight:700;font-family:var(--mono);letter-spacing:-.5px;}
+.res-desc{font-size:12px;opacity:.8;margin-top:6px;}
+.res-rows{background:rgba(255,255,255,.12);border-radius:9px;padding:14px;margin-top:14px;}
+.res-row{display:flex;justify-content:space-between;font-size:12px;padding:5px 0;border-bottom:1px solid rgba(255,255,255,.12);}
+.res-row:last-child{border:none;}
+.res-row-l{opacity:.8;}
+.res-row-v{font-family:var(--mono);font-weight:500;}
+.consejo{border-radius:9px;padding:13px 15px;margin-bottom:9px;font-size:12px;line-height:1.65;}
+.consejo.op{background:var(--vs);color:#085041;}
+.consejo.al{background:#FAEEDA;color:#633806;}
+.consejo.ur{background:var(--rs);color:var(--r);}
+.con-title{font-weight:600;margin-bottom:3px;}
+.con-imp{font-size:11px;opacity:.75;margin-top:4px;}
+
+/* Modal */
+.modal-ov{display:none;position:fixed;inset:0;background:rgba(0,0,0,.5);z-index:100;align-items:center;justify-content:center;}
+.modal-ov.on{display:flex;}
+.modal{background:var(--b);border-radius:16px;width:460px;max-width:95vw;overflow:hidden;box-shadow:0 24px 60px rgba(0,0,0,.18);}
+.modal-head{padding:22px 26px 18px;border-bottom:1px solid var(--bo);}
+.modal-title{font-size:16px;font-weight:600;margin-bottom:3px;}
+.modal-sub{font-size:12px;color:var(--ts);}
+.modal-body{padding:22px 26px;}
+.cr{display:flex;justify-content:space-between;padding:9px 0;border-bottom:1px solid var(--bo);}
+.cr:last-child{border-bottom:none;}
+.cl{font-size:12px;color:var(--ts);}
+.cv{font-family:var(--mono);font-size:13px;font-weight:500;}
+.cv.vv{color:var(--v);}
+.cv.rr{color:var(--r);}
+.ctotal{display:flex;justify-content:space-between;align-items:center;padding:15px 18px;background:var(--v);border-radius:10px;margin-top:14px;}
+.ctotal-l{color:rgba(255,255,255,.75);font-size:12px;}
+.ctotal-v{font-family:var(--mono);font-size:22px;font-weight:700;color:white;}
+.saul-c{background:var(--vs);border-radius:10px;padding:12px 14px;margin-top:14px;font-size:12px;color:var(--v);line-height:1.65;}
+.modal-foot{padding:14px 26px 22px;display:flex;gap:10px;}
+.btn-cancel{flex:1;padding:11px;border:1.5px solid var(--bo);background:transparent;border-radius:9px;font-size:13px;font-family:var(--sans);cursor:pointer;color:var(--ts);}
+.btn-pres{flex:2;padding:11px;background:var(--v);color:white;border:none;border-radius:9px;font-size:13px;font-family:var(--sans);font-weight:600;cursor:pointer;transition:background .15s;}
+.btn-pres:hover{background:var(--vc);}
+
+@keyframes up{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:translateY(0)}}
+.dash-section.on>*{animation:up .28s ease forwards;}
+</style>
+</head>
+<body>
+
+<!-- ══ PANTALLA AUTH ═════════════════════════════════════════════════ -->
+<div class="screen auth-screen on" id="screen-auth">
+  <div class="auth-left">
+    <div>
+      <div class="brand">Saúl<span>.</span></div>
+      <div class="brand-sub">Tu asesor fiscal personal</div>
+      <div class="feats">
+        <div class="feat"><div class="feat-ic">⚡</div><div><div class="feat-t">Declara en minutos</div><div class="feat-d">ISR e IVA calculados automáticamente con las reglas del SAT 2025.</div></div></div>
+        <div class="feat"><div class="feat-ic">💰</div><div><div class="feat-t">Recupera tu saldo a favor</div><div class="feat-d">Detectamos si el SAT o tu patrón te deben dinero. El promedio es $6,800.</div></div></div>
+        <div class="feat"><div class="feat-ic">🔒</div><div><div class="feat-t">Tus datos, solo tuyos</div><div class="feat-d">Tu e.firma nunca sale de tu dispositivo. Cifrado AES-256.</div></div></div>
+        <div class="feat"><div class="feat-ic">📊</div><div><div class="feat-t">Exporta tus facturas</div><div class="feat-d">Descarga en Excel o CSV para analizar o compartir con quien quieras.</div></div></div>
+      </div>
+    </div>
+    <div class="auth-footer">Saúl v0.1 · Hecho en México 🇲🇽</div>
+  </div>
+
+  <div class="auth-right">
+    <div class="auth-box">
+      <div class="auth-tabs">
+        <div class="auth-tab active" id="tab-l" onclick="switchTab('l')">Entrar</div>
+        <div class="auth-tab" id="tab-r" onclick="switchTab('r')">Crear cuenta</div>
+      </div>
+      <div class="alert-b" id="auth-msg"></div>
+
+      <!-- LOGIN -->
+      <div id="form-l">
+        <div class="auth-title">Bienvenido de vuelta</div>
+        <div class="auth-sub">Entra con tu RFC y contraseña de Saúl.</div>
+        <div class="field"><label>RFC</label><input type="text" id="l-rfc" class="mono" placeholder="XAXX010101000" maxlength="13" oninput="this.value=this.value.toUpperCase()"></div>
+        <div class="field"><label>Contraseña</label><div class="pwd-wrap"><input type="password" id="l-pwd" placeholder="Tu contraseña" onkeydown="if(event.key==='Enter')login()"><button class="pwd-eye" onclick="togglePwd('l-pwd')" type="button">👁</button></div></div>
+        <button class="btn-main" onclick="login()">Entrar a Saúl →</button>
+        <div class="divider">o</div>
+        <div style="text-align:center;font-size:13px;color:var(--ts)">¿Primera vez? <button class="btn-link" onclick="switchTab('r')">Crea tu cuenta gratis</button></div>
+      </div>
+
+      <!-- REGISTRO -->
+      <div id="form-r" style="display:none">
+        <div class="auth-title">Crea tu cuenta</div>
+        <div class="auth-sub">Gratis · Sin tarjeta · Sin contador.</div>
+        <div class="field"><label>Nombre completo</label><input type="text" id="r-nom" placeholder="Como aparece en tu INE"></div>
+        <div class="field">
+          <label>Tu RFC</label>
+          <input type="text" id="r-rfc" class="mono" placeholder="XAXX010101000" maxlength="13" oninput="this.value=this.value.toUpperCase();checkRFC()">
+          <div class="field-hint" id="rfc-hint">13 caracteres — personas físicas</div>
+        </div>
+        <div class="field">
+          <label>Régimen fiscal</label>
+          <div class="reg-grid">
+            <div class="reg-opt" id="ro-res" onclick="selReg('RESICO')"><div class="reg-opt-n">RESICO</div><div class="reg-opt-d">Negocio, estética, taller, comercio</div></div>
+            <div class="reg-opt" id="ro-plat" onclick="selReg('PLATAFORMAS')"><div class="reg-opt-n">Plataformas</div><div class="reg-opt-d">Uber, Rappi, DiDi, Airbnb</div></div>
+            <div class="reg-opt" id="ro-ss" onclick="selReg('SUELDOS')"><div class="reg-opt-n">Sueldos</div><div class="reg-opt-d">Empleado con nómina de empresa</div></div>
+            <div class="reg-opt" id="ro-hon" onclick="selReg('HONORARIOS')"><div class="reg-opt-n">Honorarios</div><div class="reg-opt-d">Freelancer, consultor, profesionista</div></div>
+          </div>
+          <input type="hidden" id="r-reg" value="">
+        </div>
+        <div class="field"><label>Contraseña</label><div class="pwd-wrap"><input type="password" id="r-pwd" placeholder="Mínimo 8 caracteres" oninput="evalPwd(this.value)"><button class="pwd-eye" onclick="togglePwd('r-pwd')" type="button">👁</button></div><div class="pwd-bars"><div class="pwd-bar" id="pb1"></div><div class="pwd-bar" id="pb2"></div><div class="pwd-bar" id="pb3"></div></div></div>
+        <div class="field"><label>Confirmar contraseña</label><input type="password" id="r-pwd2" placeholder="Repite tu contraseña" onkeydown="if(event.key==='Enter')registro()"></div>
+        <button class="btn-main" onclick="registro()">Crear mi cuenta gratis →</button>
+        <div class="divider">o</div>
+        <div style="text-align:center;font-size:13px;color:var(--ts)">¿Ya tienes cuenta? <button class="btn-link" onclick="switchTab('l')">Entra aquí</button></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ══ PANTALLA DASHBOARD ════════════════════════════════════════════ -->
+<div class="screen dash-screen" id="screen-dash">
+  <aside class="sidebar">
+    <div class="sb-logo"><div class="sb-logo-mark">Saúl<span>.</span></div><div class="sb-logo-sub">Asesor fiscal</div></div>
+    <div class="sb-user">
+      <div class="sb-rfc" id="sb-rfc">—</div>
+      <div class="sb-name" id="sb-name">—</div>
+      <div class="sb-regime" id="sb-regime">—</div>
+    </div>
+    <nav class="sb-nav">
+      <div class="sb-item active" onclick="goSec('resumen',this)"><span class="sb-item-ic">📊</span> Resumen</div>
+      <div class="sb-item" onclick="goSec('facturas',this)"><span class="sb-item-ic">🧾</span> Mis facturas</div>
+      <div class="sb-item" id="nav-ss" style="display:none" onclick="goSec('sueldos',this)"><span class="sb-item-ic">💼</span> Declaración anual</div>
+      <div class="sb-item" onclick="goSec('historial',this)"><span class="sb-item-ic">🕐</span> Historial</div>
+      <div class="sb-item" onclick="goSec('efirma',this)"><span class="sb-item-ic">🔑</span> Mi e.firma <span class="sb-badge" id="efirma-badge">!</span></div>
+    </nav>
+    <div class="sb-footer">
+      <span class="sb-footer-txt">v0.1 beta</span>
+      <button class="sb-logout" onclick="logout()">Salir</button>
+    </div>
+  </aside>
+
+  <main class="dash-main">
+    <div class="dash-header">
+      <div><div class="dash-header-title" id="dash-ttl">Resumen</div><div class="dash-header-sub" id="dash-sub">—</div></div>
+      <button class="btn-action" id="btn-top" onclick="openModal()">Declarar este mes</button>
+    </div>
+
+    <!-- RESUMEN -->
+    <div class="dash-section on" id="sec-resumen">
+      <div class="dash-alert" id="d-alert">
+        <div>⚡</div>
+        <div class="da-text"><div class="da-title" id="da-t">—</div><div class="da-desc" id="da-d">—</div></div>
+        <button class="da-btn" onclick="openModal()">Ver y presentar</button>
+      </div>
+      <div class="stats">
+        <div class="stat"><div class="stat-lbl" id="st-l1">Ingresos del mes</div><div class="stat-val" id="st-v1">—</div><div class="stat-sub" id="st-s1">—</div><div class="stat-bar"><div class="stat-bar-fill" id="sf1" style="background:var(--vc)"></div></div></div>
+        <div class="stat"><div class="stat-lbl">A pagar al SAT</div><div class="stat-val r" id="st-v2">—</div><div class="stat-sub" id="st-s2">—</div><div class="stat-bar"><div class="stat-bar-fill" id="sf2" style="background:#E24B4A"></div></div></div>
+        <div class="stat"><div class="stat-lbl" id="st-l3">Acumulado del año</div><div class="stat-val v" id="st-v3">—</div><div class="stat-sub" id="st-s3">—</div><div class="stat-bar"><div class="stat-bar-fill" id="sf3" style="background:var(--vc)"></div></div></div>
+      </div>
+      <div class="g2">
+        <!-- Chat Saúl -->
+        <div class="chat-panel">
+          <div class="cp-head">
+            <div class="cp-av">S</div>
+            <div><div class="cp-name">Saúl</div><div class="cp-status"><div class="dot-g"></div>En línea</div></div>
+          </div>
+          <div class="cp-msgs" id="msgs"></div>
+          <div class="sugs" id="sugs">
+            <div class="sug" onclick="envSug(this)">¿Cuánto llevo acumulado?</div>
+            <div class="sug" onclick="envSug(this)">¿Cuándo vence mi declaración?</div>
+            <div class="sug" onclick="envSug(this)">¿Tengo saldo a favor?</div>
+            <div class="sug" onclick="envSug(this)">¿Qué puedo deducir?</div>
+          </div>
+          <div class="cp-inp">
+            <input class="ci" id="ci" placeholder="Pregúntale algo a Saúl..." onkeydown="if(event.key==='Enter')envMsg()">
+            <button class="cs" id="cs" onclick="envMsg()">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2.5"><line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></svg>
+            </button>
+          </div>
+        </div>
+        <!-- Historial mini -->
+        <div class="hist-panel">
+          <div class="ph">Historial reciente <span class="ph-link" onclick="goSec('historial')">Ver todo →</span></div>
+          <div class="hl" id="hist-mini"></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- FACTURAS -->
+    <div class="dash-section" id="sec-facturas">
+      <div class="toolbar">
+        <button class="btn-exp" onclick="expCSV()">📄 Exportar CSV</button>
+        <button class="btn-exp" onclick="expExcel()">📊 Exportar Excel</button>
+        <span style="font-size:11px;color:var(--ts);margin-left:auto" id="fac-cnt">—</span>
+      </div>
+      <table class="fac-tbl">
+        <thead><tr><th>Fecha</th><th>Nombre</th><th>RFC</th><th>Tipo</th><th>Subtotal</th><th>IVA</th><th>Ret. ISR</th><th>Estatus</th></tr></thead>
+        <tbody id="fac-body"></tbody>
+      </table>
+    </div>
+
+    <!-- SUELDOS Y SALARIOS -->
+    <div class="dash-section" id="sec-sueldos">
+      <div class="ss-card">
+        <div class="ss-title">Declaración anual 2025</div>
+        <div class="ss-sub">Cruza tus ingresos de nómina con tus deducciones personales. Saúl calcula si el SAT te debe dinero o tienes algo que pagar en abril — y te dice cómo optimizar antes del 31 de diciembre.</div>
+
+        <div class="ss-sep">Ingresos de nómina del año</div>
+        <div class="ss-grid">
+          <div class="ss-f"><label>Ingreso gravado anual ($)</label><input type="number" id="ss-grav" placeholder="Ej: 312,000" oninput="calcSS()"></div>
+          <div class="ss-f"><label>ISR retenido por patrón ($)</label><input type="number" id="ss-ret" placeholder="Ej: 28,400" oninput="calcSS()"></div>
+        </div>
+
+        <div class="ss-sep">Deducciones personales — con comprobante fiscal</div>
+        <div class="ss-grid">
+          <div class="ss-f"><label>Honorarios médicos y dentales ($)</label><input type="number" id="ss-med" placeholder="0" oninput="calcSS()"></div>
+          <div class="ss-f"><label>Seguro de gastos médicos ($)</label><input type="number" id="ss-seg" placeholder="0" oninput="calcSS()"></div>
+          <div class="ss-f"><label>Intereses hipotecarios reales ($)</label><input type="number" id="ss-hip" placeholder="0" oninput="calcSS()"></div>
+          <div class="ss-f"><label>Aportaciones voluntarias AFORE ($)</label><input type="number" id="ss-afo" placeholder="0" oninput="calcSS()"></div>
+          <div class="ss-f"><label>Colegiaturas ($)</label><input type="number" id="ss-col" placeholder="0" oninput="calcSS()"></div>
+          <div class="ss-f"><label>Donativos a donatarias autorizadas ($)</label><input type="number" id="ss-don" placeholder="0" oninput="calcSS()"></div>
+        </div>
+
+        <div id="ss-res-wrap" style="display:none">
+          <div class="ss-sep">Tu declaración anual</div>
+          <div class="res-box" id="ss-box">
+            <div class="res-lbl" id="ss-rlbl">—</div>
+            <div class="res-amt" id="ss-ramt">$0</div>
+            <div class="res-desc" id="ss-rdesc">—</div>
+            <div class="res-rows">
+              <div class="res-row"><span class="res-row-l">Ingresos gravados del año</span><span class="res-row-v" id="rr1">—</span></div>
+              <div class="res-row"><span class="res-row-l">Deducciones personales válidas</span><span class="res-row-v" id="rr2">—</span></div>
+              <div class="res-row"><span class="res-row-l">Tope global (15% o $202,004)</span><span class="res-row-v" id="rr3">—</span></div>
+              <div class="res-row"><span class="res-row-l">Base gravable</span><span class="res-row-v" id="rr4">—</span></div>
+              <div class="res-row"><span class="res-row-l">ISR anual (tabla Art. 152)</span><span class="res-row-v" id="rr5">—</span></div>
+              <div class="res-row"><span class="res-row-l">ISR retenido por tu patrón</span><span class="res-row-v" id="rr6">—</span></div>
+            </div>
+          </div>
+          <div id="ss-consejos"></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- E.FIRMA -->
+    <div class="dash-section" id="sec-efirma">
+      <div class="ss-card">
+        <div class="ss-title">🔑 Conecta tu e.firma</div>
+        <div class="ss-sub">Con tu e.firma Saúl se conecta al SAT, descarga tus facturas reales y presenta tus declaraciones automáticamente. Tus archivos <strong>nunca salen de tu dispositivo</strong> — todo se procesa localmente.</div>
+
+        <!-- Estado actual -->
+        <div id="efirma-estado-no" style="background:var(--rs);border-radius:10px;padding:16px 18px;margin-bottom:22px;display:flex;align-items:center;gap:12px;">
+          <div style="font-size:22px">⚠️</div>
+          <div>
+            <div style="font-size:13px;font-weight:600;color:var(--r)">E.firma no conectada</div>
+            <div style="font-size:11px;color:var(--r);opacity:.8;margin-top:2px">Actualmente usas datos de ejemplo. Conecta tu e.firma para ver tus datos reales del SAT.</div>
+          </div>
+        </div>
+
+        <div id="efirma-estado-si" style="background:var(--vs);border-radius:10px;padding:16px 18px;margin-bottom:22px;display:none;align-items:center;gap:12px;">
+          <div style="font-size:22px">✅</div>
+          <div style="flex:1">
+            <div style="font-size:13px;font-weight:600;color:var(--v)">E.firma conectada</div>
+            <div style="font-size:11px;color:var(--v);opacity:.8;margin-top:2px" id="efirma-rfc-det">RFC detectado: —</div>
+          </div>
+          <button onclick="desconectarEfirma()" style="font-size:11px;padding:5px 12px;border:1px solid var(--v);border-radius:7px;background:transparent;color:var(--v);cursor:pointer;font-family:var(--sans)">Desconectar</button>
+        </div>
+
+        <!-- Seguridad -->
+        <div style="background:var(--f);border-radius:10px;padding:14px 16px;margin-bottom:22px;">
+          <div style="font-size:12px;font-weight:600;margin-bottom:10px;color:var(--t)">🔒 Cómo protegemos tu e.firma</div>
+          <div style="display:flex;flex-direction:column;gap:8px;">
+            <div style="display:flex;gap:10px;align-items:flex-start;font-size:12px;color:var(--ts)"><span style="color:var(--vc);font-size:14px">✓</span> Los archivos .cer y .key se leen en tu navegador — nunca se suben a ningún servidor</div>
+            <div style="display:flex;gap:10px;align-items:flex-start;font-size:12px;color:var(--ts)"><span style="color:var(--vc);font-size:14px">✓</span> La contraseña se usa solo para abrir el .key y se descarta inmediatamente</div>
+            <div style="display:flex;gap:10px;align-items:flex-start;font-size:12px;color:var(--ts)"><span style="color:var(--vc);font-size:14px">✓</span> Solo guardamos tu RFC — nunca la llave privada ni la contraseña</div>
+            <div style="display:flex;gap:10px;align-items:flex-start;font-size:12px;color:var(--ts)"><span style="color:var(--vc);font-size:14px">✓</span> Puedes desconectar en cualquier momento y borrar todo</div>
+          </div>
+        </div>
+
+        <!-- Formulario -->
+        <div class="ss-sep">Carga tus archivos</div>
+        <div style="display:flex;flex-direction:column;gap:14px;margin-bottom:20px;">
+
+          <!-- .cer -->
+          <div>
+            <div style="font-size:11px;font-weight:500;color:var(--ts);text-transform:uppercase;letter-spacing:.06em;margin-bottom:7px;">Archivo .cer (certificado público)</div>
+            <div id="drop-cer" onclick="document.getElementById('inp-cer').click()" style="border:2px dashed var(--bo);border-radius:10px;padding:20px;text-align:center;cursor:pointer;transition:all .2s;" onmouseenter="this.style.borderColor='var(--vc)'" onmouseleave="this.style.borderColor=cerOk?'var(--vc)':'var(--bo)'">
+              <div style="font-size:22px;margin-bottom:6px" id="cer-ic">📄</div>
+              <div style="font-size:13px;color:var(--ts)" id="cer-txt">Haz clic para seleccionar tu archivo .cer</div>
+              <div style="font-size:11px;color:var(--ts);margin-top:3px;opacity:.7">o arrastra el archivo aquí</div>
+            </div>
+            <input type="file" id="inp-cer" accept=".cer" style="display:none" onchange="cargarCer(this)">
+          </div>
+
+          <!-- .key -->
+          <div>
+            <div style="font-size:11px;font-weight:500;color:var(--ts);text-transform:uppercase;letter-spacing:.06em;margin-bottom:7px;">Archivo .key (llave privada)</div>
+            <div id="drop-key" onclick="document.getElementById('inp-key').click()" style="border:2px dashed var(--bo);border-radius:10px;padding:20px;text-align:center;cursor:pointer;transition:all .2s;" onmouseenter="this.style.borderColor='var(--vc)'" onmouseleave="this.style.borderColor=keyOk?'var(--vc)':'var(--bo)'">
+              <div style="font-size:22px;margin-bottom:6px" id="key-ic">🔑</div>
+              <div style="font-size:13px;color:var(--ts)" id="key-txt">Haz clic para seleccionar tu archivo .key</div>
+              <div style="font-size:11px;color:var(--ts);margin-top:3px;opacity:.7">o arrastra el archivo aquí</div>
+            </div>
+            <input type="file" id="inp-key" accept=".key" style="display:none" onchange="cargarKey(this)">
+          </div>
+
+          <!-- Contraseña -->
+          <div>
+            <div style="font-size:11px;font-weight:500;color:var(--ts);text-transform:uppercase;letter-spacing:.06em;margin-bottom:7px;">Contraseña de tu e.firma</div>
+            <div class="pwd-wrap">
+              <input type="password" id="ef-pwd" placeholder="La contraseña que creaste al tramitar tu e.firma" style="width:100%;padding:12px 40px 12px 14px;border:1.5px solid var(--bo);border-radius:10px;font-size:14px;font-family:var(--sans);background:var(--b);color:var(--t);outline:none;transition:border .2s;" onfocus="this.style.borderColor='var(--vc)'" onblur="this.style.borderColor='var(--bo)'">
+              <button class="pwd-eye" onclick="togglePwd('ef-pwd')" type="button">👁</button>
+            </div>
+            <div style="font-size:11px;color:var(--ts);margin-top:5px">Esta contraseña no se guarda — solo se usa para verificar que el .key es tuyo</div>
+          </div>
+        </div>
+
+        <!-- Alerta -->
+        <div id="ef-alert" style="display:none;border-radius:9px;padding:11px 14px;font-size:12px;margin-bottom:14px;"></div>
+
+        <!-- Botón conectar -->
+        <button id="btn-conectar" onclick="conectarEfirma()" style="width:100%;padding:13px;background:var(--v);color:white;border:none;border-radius:10px;font-size:14px;font-family:var(--sans);font-weight:600;cursor:pointer;transition:background .15s;">
+          Conectar mi e.firma al SAT
+        </button>
+
+        <!-- Qué pasa después -->
+        <div style="margin-top:20px;padding-top:20px;border-top:1px solid var(--bo);">
+          <div style="font-size:12px;font-weight:600;margin-bottom:12px;">¿Qué pasa cuando conectas?</div>
+          <div style="display:flex;flex-direction:column;gap:10px;">
+            <div style="display:flex;gap:12px;align-items:flex-start;">
+              <div style="width:24px;height:24px;background:var(--vs);border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:600;color:var(--v);flex-shrink:0;">1</div>
+              <div style="font-size:12px;color:var(--ts);line-height:1.6;">Saúl descarga todos tus CFDIs del mes directamente del buzón SAT — facturas emitidas, recibidas y complementos de pago</div>
+            </div>
+            <div style="display:flex;gap:12px;align-items:flex-start;">
+              <div style="width:24px;height:24px;background:var(--vs);border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:600;color:var(--v);flex-shrink:0;">2</div>
+              <div style="font-size:12px;color:var(--ts);line-height:1.6;">El motor fiscal calcula tu ISR e IVA real con tus números reales — retenciones, saldo a favor, tasa correcta</div>
+            </div>
+            <div style="display:flex;gap:12px;align-items:flex-start;">
+              <div style="width:24px;height:24px;background:var(--vs);border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:600;color:var(--v);flex-shrink:0;">3</div>
+              <div style="font-size:12px;color:var(--ts);line-height:1.6;">Cuando apruebas, Saúl presenta la declaración directamente al SAT y descarga el acuse automáticamente</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Nota: requiere backend -->
+        <div style="margin-top:18px;background:var(--f);border-radius:10px;padding:14px 16px;border:1px solid var(--bo);">
+          <div style="font-size:12px;font-weight:600;margin-bottom:6px;">⚙️ Nota técnica</div>
+          <div style="font-size:11px;color:var(--ts);line-height:1.7;">
+            La conexión real al SAT requiere el backend corriendo en tu computadora (<code style="background:var(--bo);padding:1px 5px;border-radius:4px;font-family:var(--mono)">uvicorn main:app</code>). 
+            En esta versión demo verificamos que tus archivos sean válidos y mostramos lo que pasaría. 
+            Para la versión completa con descarga real de CFDIs, escríbeme y te ayudo a instalar el backend en 10 minutos.
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- HISTORIAL -->
+    <div class="dash-section" id="sec-historial">
+      <div class="hist-panel" style="height:auto;max-height:550px">
+        <div class="ph">Historial completo</div>
+        <div class="hl" id="hist-full"></div>
+      </div>
+    </div>
+  </main>
+</div>
+
+<!-- Modal declaración -->
+<div class="modal-ov" id="modal" onclick="if(event.target===this)closeModal()">
+  <div class="modal">
+    <div class="modal-head"><div class="modal-title" id="m-ttl">—</div><div class="modal-sub" id="m-sub">—</div></div>
+    <div class="modal-body" id="m-body"></div>
+    <div class="modal-foot"><button class="btn-cancel" onclick="closeModal()">Revisar después</button><button class="btn-pres" id="btn-pres" onclick="presentar()">Presentar al SAT</button></div>
+  </div>
+</div>
+
+<script>
+// ── Storage ───────────────────────────────────────────────────────
+const DBKEY='saul_usuarios_v3';
+const getDB=()=>{try{return JSON.parse(localStorage.getItem(DBKEY)||'{}')}catch{return{}}};
+const saveDB=d=>localStorage.setItem(DBKEY,JSON.stringify(d));
+const getU=()=>{const r=sessionStorage.getItem('saul_rfc');return r?getDB()[r]:null;};
+
+// ── Datos demo ────────────────────────────────────────────────────
+const MESES=['Enero','Febrero','Marzo','Abril','Mayo','Junio','Julio','Agosto','Septiembre','Octubre','Noviembre','Diciembre'];
+const MESC=['Ene','Feb','Mar','Abr','May','Jun','Jul','Ago','Sep','Oct','Nov','Dic'];
+
+function demoD(reg){
+  const mi=new Date().getMonth(), an=new Date().getFullYear(), mes=MESES[mi];
+  return {
+    RESICO:    {ing:23400,isr:0,iva:1125,isr_ret:800,iva_ret:746,acum:187400,tope:3500000,tasa:'1.0%',l1:'Ingresos del mes',l3:'Acumulado del año',s1:`8 facturas · ${mes}`,s2:'ISR cubierto por cliente · IVA $1,125',s3:`Tasa 1% · Tope $3.5M`,msg:`Descargué tus facturas de ${mes} — 8 emitidas, 6 cobradas. Tu cliente empresa ya retuvo el ISR de $800. Solo queda el IVA de $1,125. ¿Lo presentamos?`},
+    PLATAFORMAS:{ing:9200,isr:0,iva:736,isr_ret:193,iva_ret:736,acum:68400,tope:300000,tasa:'2.1%',l1:'Cobrado en plataformas',l3:'Acumulado del año',s1:`Uber · ${mes}`,s2:'50% IVA usuario: $736',s3:'Tope pago definitivo: $300K',msg:`Uber retuvo $193 de ISR y $736 de IVA. El ISR cuadra perfectamente. Solo hay que declarar el 50% de IVA: $736. ¿Lo presentamos?`},
+    SUELDOS:   {ing:26000,isr:0,iva:0,isr_ret:2360,iva_ret:0,acum:312000,tope:0,tasa:'—',l1:'Ingreso nómina del mes',l3:'Ingreso anual acumulado',s1:`Nómina · ${mes}`,s2:'Tu patrón retiene mes a mes',s3:'Declaración anual: abril 2026',msg:`Tu patrón retuvo $2,360 de ISR en ${mes}. La declaración anual es en abril — ahí es donde puedes recuperar dinero con tus deducciones. Ve a "Declaración anual" para calcular cuánto te devuelven.`},
+    HONORARIOS:{ing:32000,isr:1280,iva:768,isr_ret:2000,iva_ret:2133,acum:245000,tope:99e9,tasa:'10%',l1:'Honorarios del mes',l3:'Acumulado del año',s1:`Servicios · ${mes}`,s2:'ISR $1,280 · IVA $768',s3:'Tasa provisional 10%',msg:`Este mes tus clientes morales retuvieron de más — tienes saldo a favor de ISR. Solo pagas el IVA de $768. ¿Lo revisamos juntos?`},
+  }[reg]||{ing:0,isr:0,iva:0,isr_ret:0,iva_ret:0,acum:0,tope:1,tasa:'—',l1:'Ingresos',l3:'Acumulado',s1:'—',s2:'—',s3:'—',msg:'Hola, soy Saúl. ¿En qué te ayudo hoy?'};
+}
+
+function cfdiDemo(rfc){
+  return[
+    {tipo:'emitida',fecha:'2025-11-01',nombre:'Corporativo Imagen SA de CV',rfc_c:'CIM980201TM0',subtotal:8000,iva:640,isr_ret:800,iva_ret:426.67},
+    {tipo:'emitida',fecha:'2025-11-05',nombre:'González Martínez Yolanda',rfc_c:'GOMY871122MR4',subtotal:3200,iva:256,isr_ret:0,iva_ret:0},
+    {tipo:'emitida',fecha:'2025-11-12',nombre:'Hernández Reyes Rosa',rfc_c:'HERR901005FG1',subtotal:2800,iva:224,isr_ret:0,iva_ret:0},
+    {tipo:'emitida',fecha:'2025-11-18',nombre:'Salón Premium SC',rfc_c:'SPR150610NV3',subtotal:2500,iva:200,isr_ret:0,iva_ret:0},
+    {tipo:'recibida',fecha:'2025-11-08',nombre:'Telcel',rfc_c:'TME930714783',subtotal:850,iva:136,isr_ret:0,iva_ret:0},
+    {tipo:'recibida',fecha:'2025-11-03',nombre:'Telmex',rfc_c:'IEB9512166S5',subtotal:450,iva:72,isr_ret:0,iva_ret:0},
+  ];
+}
+
+// ── Auth ──────────────────────────────────────────────────────────
+let regSel='';
+
+function switchTab(t){
+  ['l','r'].forEach(x=>{
+    document.getElementById('tab-'+x).classList.toggle('active',x===t);
+    document.getElementById('form-'+x).style.display=x===t?'':'none';
+  });
+  document.getElementById('auth-msg').className='alert-b';
+}
+
+function showMsg(m,t='err'){const el=document.getElementById('auth-msg');el.textContent=m;el.className=`alert-b ${t} on`;}
+function togglePwd(id){const i=document.getElementById(id);i.type=i.type==='password'?'text':'password';}
+
+function evalPwd(v){
+  let n=0;
+  if(v.length>=8)n=1;
+  if(v.length>=10&&/[A-Z]/.test(v)&&/\d/.test(v))n=2;
+  if(n===2&&v.length>=12)n=3;
+  const cs={1:'#E24B4A',2:'#F5C842',3:'#1D9E75'};
+  [1,2,3].forEach(i=>document.getElementById('pb'+i).style.background=i<=n?(cs[n]):'var(--bo)');
+}
+
+function checkRFC(){
+  const r=document.getElementById('r-rfc').value,h=document.getElementById('rfc-hint');
+  h.textContent=r.length===13?'RFC válido ✓':'13 caracteres — personas físicas';
+  h.style.color=r.length===13?'var(--vc)':'var(--ts)';
+}
+
+function selReg(r){
+  regSel=r;
+  const ids={RESICO:'ro-res',PLATAFORMAS:'ro-plat',SUELDOS:'ro-ss',HONORARIOS:'ro-hon'};
+  Object.entries(ids).forEach(([k,id])=>document.getElementById(id).classList.toggle('sel',k===r));
+  document.getElementById('r-reg').value=r;
+}
+
+function login(){
+  const rfc=document.getElementById('l-rfc').value.trim().toUpperCase();
+  const pwd=document.getElementById('l-pwd').value;
+  if(!rfc||!pwd){showMsg('Ingresa tu RFC y contraseña.');return;}
+  const u=getDB()[rfc];
+  if(!u){showMsg('RFC no encontrado. ¿Tienes cuenta?');return;}
+  if(u.pw!==btoa(pwd)){showMsg('Contraseña incorrecta.');return;}
+  sessionStorage.setItem('saul_rfc',rfc);
+  entrar(u);
+}
+
+function registro(){
+  const nom=document.getElementById('r-nom').value.trim();
+  const rfc=document.getElementById('r-rfc').value.trim().toUpperCase();
+  const reg=document.getElementById('r-reg').value;
+  const pwd=document.getElementById('r-pwd').value;
+  const pwd2=document.getElementById('r-pwd2').value;
+  if(!nom){showMsg('Escribe tu nombre.');return;}
+  if(rfc.length!==13){showMsg('El RFC debe tener 13 caracteres.');return;}
+  if(!reg){showMsg('Elige tu régimen fiscal.');return;}
+  if(pwd.length<8){showMsg('La contraseña debe tener al menos 8 caracteres.');return;}
+  if(pwd!==pwd2){showMsg('Las contraseñas no coinciden.');return;}
+  const db=getDB();
+  if(db[rfc]){showMsg('Este RFC ya tiene cuenta. Entra con tu contraseña.');return;}
+  const u={nom,rfc,reg,pw:btoa(pwd),zona:'general'};
+  db[rfc]=u;saveDB(db);sessionStorage.setItem('saul_rfc',rfc);
+  showMsg(`¡Listo, ${nom.split(' ')[0]}! Entrando...`,'suc');
+  setTimeout(()=>entrar(u),700);
+}
+
+function logout(){sessionStorage.removeItem('saul_rfc');mostrarPantalla('auth');}
+
+// ── Dashboard ─────────────────────────────────────────────────────
+function fmt(n){return'$'+n.toLocaleString('es-MX',{minimumFractionDigits:2,maximumFractionDigits:2});}
+
+function entrar(u){
+  mostrarPantalla('dash');
+  const d=demoD(u.reg);
+  const n1=u.nom.split(' ')[0];
+  const mi=new Date().getMonth(), an=new Date().getFullYear();
+  const esSS=u.reg==='SUELDOS';
+
+  // Sidebar
+  document.getElementById('sb-rfc').textContent=u.rfc;
+  document.getElementById('sb-name').textContent=u.nom;
+  document.getElementById('sb-regime').textContent=u.reg;
+
+  // Header
+  document.getElementById('dash-ttl').textContent=`Hola, ${n1}`;
+  document.getElementById('dash-sub').textContent=`${MESES[mi]} ${an} · ${u.reg}`;
+
+  // Botón top
+  const btnTop=document.getElementById('btn-top');
+  if(esSS){btnTop.textContent='Ver declaración anual';btnTop.onclick=()=>goSec('sueldos');}
+  else{btnTop.textContent='Declarar este mes';btnTop.onclick=openModal;}
+
+  // Alerta
+  document.getElementById('d-alert').style.display=esSS?'none':'';
+  if(!esSS){
+    document.getElementById('da-t').textContent=`Tu declaración de ${MESES[mi]} vence el 17`;
+    document.getElementById('da-d').textContent=`Total: ${fmt(d.isr+d.iva)} · Faltan pocos días`;
+  }
+
+  // Stats
+  const pct=d.tope>0?Math.min(100,(d.acum/d.tope)*100):0;
+  document.getElementById('st-l1').textContent=d.l1;
+  document.getElementById('st-v1').textContent=fmt(d.ing);
+  document.getElementById('st-s1').textContent=d.s1;
+  document.getElementById('sf1').style.width='70%';
+  document.getElementById('st-v2').textContent=esSS?'Abril 2026':fmt(d.isr+d.iva);
+  document.getElementById('st-s2').textContent=d.s2;
+  document.getElementById('sf2').style.width='100%';
+  document.getElementById('st-l3').textContent=d.l3;
+  document.getElementById('st-v3').textContent=fmt(d.acum);
+  document.getElementById('st-s3').textContent=d.s3;
+  document.getElementById('sf3').style.width=pct+'%';
+
+  // Menú sueldos
+  document.getElementById('nav-ss').style.display=esSS?'':'none';
+
+  // Historial
+  renderHist('hist-mini',5);
+  renderHist('hist-full',12);
+
+  // Facturas
+  const cfdis=cfdiDemo(u.rfc);
+  window._cfdis=cfdis;
+  renderFac(cfdis);
+
+  // Chat
+  document.getElementById('msgs').innerHTML='';
+  addMsg('s',d.msg);
+
+  // Modal
+  document.getElementById('m-ttl').textContent=`Declaración de ${MESES[mi]} ${an}`;
+  document.getElementById('m-sub').textContent=`${u.reg} · RFC ${u.rfc} · Vence el 17`;
+  renderModal(d,n1);
+}
+
+function renderHist(id,max){
+  const c=document.getElementById(id);c.innerHTML='';
+  const mi=new Date().getMonth(), an=new Date().getFullYear();
+  for(let i=0;i<max;i++){
+    const m=(mi-i+12)%12;
+    const pend=i===0;
+    const amt=pend?1125:[1180,980,1420,860,1050,920,1300,750,1100,890,1200][i-1]||800;
+    c.innerHTML+=`<div class="hi">
+      <div class="hi-mes">${MESC[m]} ${String(an).slice(2)}</div>
+      <div class="hi-inf"><div class="hi-tit">ISR + IVA · ${MESES[m]}</div>
+      <div class="hi-desc">${pend?`Vence el 17 · <span class="pill pill-pend">Pendiente</span>`:`Presentado · <span class="pill pill-ok">Pagado</span>`}</div></div>
+      <div class="hi-amt ${pend?'pend':'p'}">${fmt(amt)}</div>
+    </div>`;
+  }
+}
+
+function renderFac(cfdis){
+  const b=document.getElementById('fac-body');b.innerHTML='';
+  document.getElementById('fac-cnt').textContent=`${cfdis.length} comprobantes · Noviembre 2025`;
+  cfdis.forEach(c=>{
+    const tp=c.rfc_c.length===12?'Moral':'Física';
+    const tpStyle=tp==='Moral'?'background:#EEEDFE;color:#3C3489':'background:var(--vs);color:var(--v)';
+    b.innerHTML+=`<tr>
+      <td>${c.fecha}</td>
+      <td>${c.nombre}<br><span style="font-size:10px;color:var(--ts)">${c.tipo==='emitida'?'Emitida':'Recibida'}</span></td>
+      <td class="mono-small">${c.rfc_c}</td>
+      <td><span class="pill" style="${tpStyle}">${tp}</span></td>
+      <td class="amt">${fmt(c.subtotal)}</td>
+      <td class="amt">${fmt(c.iva)}</td>
+      <td class="amt" style="color:${c.isr_ret>0?'var(--v)':'var(--ts)'}">${c.isr_ret>0?fmt(c.isr_ret):'—'}</td>
+      <td><span class="pill pill-ok">Vigente</span></td>
+    </tr>`;
+  });
+}
+
+function renderModal(d,n1){
+  document.getElementById('m-body').innerHTML=`
+    <div class="cr"><span class="cl">Ingresos cobrados</span><span class="cv">${fmt(d.ing)}</span></div>
+    <div class="cr"><span class="cl">ISR calculado (${d.tasa})</span><span class="cv">${fmt(d.ing*(parseFloat(d.tasa)||0)/100)}</span></div>
+    ${d.isr_ret>0?`<div class="cr"><span class="cl">ISR retenido por cliente/plataforma</span><span class="cv vv">− ${fmt(d.isr_ret)}</span></div>`:''}
+    <div class="cr"><span class="cl">ISR a pagar</span><span class="cv">${fmt(d.isr)}</span></div>
+    <div class="cr"><span class="cl">IVA cobrado</span><span class="cv">${fmt(d.ing*0.08)}</span></div>
+    ${d.iva_ret>0?`<div class="cr"><span class="cl">IVA retenido</span><span class="cv vv">− ${fmt(d.iva_ret)}</span></div>`:''}
+    <div class="cr"><span class="cl">IVA a pagar</span><span class="cv rr">${fmt(d.iva)}</span></div>
+    <div class="ctotal"><span class="ctotal-l">Total a pagar al SAT</span><span class="ctotal-v">${fmt(d.isr+d.iva)}</span></div>
+    <div class="saul-c">Todo correcto, ${n1}. En la versión completa lo presento directamente al SAT con tu e.firma. Sin que tengas que entrar al portal.</div>`;
+}
+
+// ── Sueldos y Salarios ────────────────────────────────────────────
+const TABLA_ISR=[
+  {li:0.01,ls:8952.49,cu:0,ta:0.0192},{li:8952.50,ls:75984.55,cu:171.88,ta:0.0640},
+  {li:75984.56,ls:133536.07,cu:4461.94,ta:0.1088},{li:133536.08,ls:155229.80,cu:10723.55,ta:0.1600},
+  {li:155229.81,ls:185852.57,cu:14194.54,ta:0.1792},{li:185852.58,ls:374837.88,cu:19682.13,ta:0.2136},
+  {li:374837.89,ls:590795.99,cu:60049.40,ta:0.2352},{li:590796.00,ls:1127926.84,cu:110842.74,ta:0.3000},
+  {li:1127926.85,ls:1503902.46,cu:271981.99,ta:0.3200},{li:1503902.47,ls:4511707.37,cu:392294.17,ta:0.3400},
+  {li:4511707.38,ls:Infinity,cu:1414947.85,ta:0.3500},
+];
+function isrTabla(ing){for(const t of TABLA_ISR){if(t.li<=ing&&ing<=t.ls)return Math.round((t.cu+(ing-t.li+0.01)*t.ta)*100)/100;}return 0;}
+
+function calcSS(){
+  const grav=+document.getElementById('ss-grav').value||0;
+  const ret=+document.getElementById('ss-ret').value||0;
+  if(!grav){document.getElementById('ss-res-wrap').style.display='none';return;}
+  const med=+document.getElementById('ss-med').value||0;
+  const seg=+document.getElementById('ss-seg').value||0;
+  const hip=+document.getElementById('ss-hip').value||0;
+  const afo=+document.getElementById('ss-afo').value||0;
+  const col=+document.getElementById('ss-col').value||0;
+  const don=+document.getElementById('ss-don').value||0;
+
+  const topeGlobal=Math.min(202004,grav*0.15);
+  const afoVal=Math.min(afo,Math.min(152000,grav*0.1));
+  const donVal=Math.min(don,grav*0.07);
+  let dedBase=Math.min(med+seg+hip+afoVal+donVal,topeGlobal);
+  const dedTotal=dedBase+col;
+  const base=Math.max(0,grav-dedTotal);
+  const isrCalc=isrTabla(base);
+  const dif=isrCalc-ret;
+  const saldo=dif<0?Math.abs(dif):0;
+  const aPagar=dif>0?dif:0;
+  const espacio=Math.max(0,topeGlobal-(med+seg+hip+afoVal+donVal));
+
+  document.getElementById('ss-res-wrap').style.display='';
+  const box=document.getElementById('ss-box');
+  if(saldo>0){
+    box.className='res-box favor';
+    document.getElementById('ss-rlbl').textContent='El SAT te debe devolver';
+    document.getElementById('ss-ramt').textContent=fmt(saldo);
+    document.getElementById('ss-rdesc').textContent='Inicia el trámite en tu declaración anual de abril — el SAT deposita en 20-40 días hábiles';
+  }else if(aPagar>0){
+    box.className='res-box pagar';
+    document.getElementById('ss-rlbl').textContent='A pagar al SAT en abril';
+    document.getElementById('ss-ramt').textContent=fmt(aPagar);
+    document.getElementById('ss-rdesc').textContent='Puedes reducirlo deduciendo más antes del 31 de diciembre';
+  }else{
+    box.className='res-box cero';
+    document.getElementById('ss-rlbl').textContent='Resultado';
+    document.getElementById('ss-ramt').textContent='$0.00';
+    document.getElementById('ss-rdesc').textContent='Tus retenciones cuadran exactamente';
+  }
+  document.getElementById('rr1').textContent=fmt(grav);
+  document.getElementById('rr2').textContent=fmt(dedTotal);
+  document.getElementById('rr3').textContent=fmt(topeGlobal)+' MXN';
+  document.getElementById('rr4').textContent=fmt(base);
+  document.getElementById('rr5').textContent=fmt(isrCalc);
+  document.getElementById('rr6').textContent=fmt(ret);
+
+  // Consejos
+  const cc=document.getElementById('ss-consejos');cc.innerHTML='';
+  if(saldo>0)cc.innerHTML+=`<div class="consejo op"><div class="con-title">💰 El SAT te debe ${fmt(saldo)}</div>Tu patrón retuvo más ISR del que corresponde. Preséntate en abril y recibes ese dinero de regreso.<div class="con-imp">Impacto: +${fmt(saldo)} en tu cuenta bancaria</div></div>`;
+  if(espacio>5000)cc.innerHTML+=`<div class="consejo op"><div class="con-title">💡 Todavía puedes deducir ${fmt(espacio)} más</div>Si aprovechas ese espacio antes del 31 de diciembre, reduces tu ISR de abril en ~${fmt(espacio*0.25)}. ¿Tienes gastos médicos, seguro médico o puedes aportar al AFORE?<div class="con-imp">Ahorro potencial: ${fmt(espacio*0.25)}</div></div>`;
+  if(afo===0&&grav>100000)cc.innerHTML+=`<div class="consejo op"><div class="con-title">🏦 No usaste tu AFORE</div>Con tus ingresos puedes deducir hasta ${fmt(Math.min(152000,grav*0.1))} en aportaciones voluntarias. Es la deducción más poderosa e ignorada — ahorras para el retiro y pagas menos ISR hoy.</div>`;
+  if(aPagar>0&&espacio>5000)cc.innerHTML+=`<div class="consejo ur"><div class="con-title">⚠️ Puedes reducir lo que pagas antes del 31 de diciembre</div>Tienes espacio de deducción sin usar. Cada peso deducido reduce tu ISR en abril. Actúa antes de que cierre el año.</div>`;
+}
+
+// ── Exportación ───────────────────────────────────────────────────
+function expCSV(){
+  const u=getU();
+  const cfdis=window._cfdis||[];
+  const h=['UUID','Tipo','Fecha','Nombre','RFC','Tipo Persona','Subtotal','IVA','ISR Retenido','IVA Retenido','Estado'];
+  const rows=cfdis.map((c,i)=>[`FAC-${String(i+1).padStart(4,'0')}`,c.tipo,c.fecha,c.nombre,c.rfc_c,c.rfc_c.length===12?'Moral':'Física',c.subtotal,c.iva,c.isr_ret,c.iva_ret,'Vigente']);
+  const csv=[h,...rows].map(r=>r.map(v=>`"${v}"`).join(',')).join('\n');
+  descargar('\uFEFF'+csv,`facturas_${u?.rfc||'saul'}.csv`,'text/csv');
+}
+
+function expExcel(){
+  const u=getU();
+  const cfdis=window._cfdis||[];
+  const xml=`<?xml version="1.0"?><Workbook xmlns="urn:schemas-microsoft-com:office:spreadsheet" xmlns:ss="urn:schemas-microsoft-com:office:spreadsheet">
+<Worksheet ss:Name="Facturas"><Table>
+<Row>${['Tipo','Fecha','Nombre','RFC','Tipo Persona','Subtotal','IVA','ISR Retenido','Estado'].map(h=>`<Cell><Data ss:Type="String">${h}</Data></Cell>`).join('')}</Row>
+${cfdis.map(c=>`<Row><Cell><Data ss:Type="String">${c.tipo}</Data></Cell><Cell><Data ss:Type="String">${c.fecha}</Data></Cell><Cell><Data ss:Type="String">${c.nombre}</Data></Cell><Cell><Data ss:Type="String">${c.rfc_c}</Data></Cell><Cell><Data ss:Type="String">${c.rfc_c.length===12?'Moral':'Física'}</Data></Cell><Cell><Data ss:Type="Number">${c.subtotal}</Data></Cell><Cell><Data ss:Type="Number">${c.iva}</Data></Cell><Cell><Data ss:Type="Number">${c.isr_ret}</Data></Cell><Cell><Data ss:Type="String">Vigente</Data></Cell></Row>`).join('\n')}
+</Table></Worksheet>
+<Worksheet ss:Name="Resumen"><Table>
+<Row><Cell><Data ss:Type="String">Reporte Saúl</Data></Cell></Row>
+<Row><Cell><Data ss:Type="String">RFC: ${u?.rfc||''}</Data></Cell></Row>
+<Row><Cell><Data ss:Type="String">Período: Noviembre 2025</Data></Cell></Row>
+<Row><Cell><Data ss:Type="String">Emitidas: ${cfdis.filter(c=>c.tipo==='emitida').length}</Data></Cell></Row>
+<Row><Cell><Data ss:Type="String">Total ingresos: $${cfdis.filter(c=>c.tipo==='emitida').reduce((s,c)=>s+c.subtotal,0).toLocaleString('es-MX')}</Data></Cell></Row>
+</Table></Worksheet></Workbook>`;
+  descargar(xml,`facturas_${u?.rfc||'saul'}.xls`,'application/vnd.ms-excel');
+}
+
+function descargar(data,nombre,tipo){
+  const a=document.createElement('a');
+  a.href=URL.createObjectURL(new Blob([data],{type:tipo}));
+  a.download=nombre;a.click();
+}
+
+// ── Chat ──────────────────────────────────────────────────────────
+let busy=false;
+function hora(){const d=new Date(),h=d.getHours(),m=d.getMinutes();return`${h}:${m<10?'0'+m:m} ${h<12?'am':'pm'}`;}
+function addMsg(de,txt){const c=document.getElementById('msgs');const d=document.createElement('div');d.className=`msg ${de}`;d.innerHTML=`<div class="mb">${txt}</div><div class="mt">${hora()} · ${de==='s'?'Saúl':'Tú'}</div>`;c.appendChild(d);c.scrollTop=c.scrollHeight;}
+function showTyping(){const c=document.getElementById('msgs');const d=document.createElement('div');d.className='msg typing';d.id='ty';d.innerHTML='<div class="mb"><div class="td"></div><div class="td"></div><div class="td"></div></div>';c.appendChild(d);c.scrollTop=c.scrollHeight;}
+function hideTyping(){document.getElementById('ty')?.remove();}
+
+async function envMsg(){
+  if(busy)return;
+  const inp=document.getElementById('ci'),txt=inp.value.trim();
+  if(!txt)return;
+  inp.value='';busy=true;document.getElementById('cs').disabled=true;
+  addMsg('u',txt);showTyping();
+  const u=getU();const d=u?demoD(u.reg):{};
+  await new Promise(r=>setTimeout(r,750));
+  hideTyping();
+  const tl=txt.toLowerCase();
+  let r='Cuando conectes tu RFC al SAT te respondo con tus datos exactos. ¿Quieres revisar tu declaración mientras tanto?';
+  if(tl.includes('acumulado')||tl.includes('llevo'))r=`Llevas ${fmt(d.acum||0)} acumulados este año. ${u?.reg==='SUELDOS'?'Tu declaración es en abril.':'Vas bien, lejos del tope.'}`;
+  else if(tl.includes('venc')||tl.includes('cuándo')||tl.includes('fecha'))r=u?.reg==='SUELDOS'?'Tu declaración anual es en abril. En enero empezamos a preparar todo.':'Tu declaración vence el 17 de cada mes. ¿Quieres que la presentemos hoy?';
+  else if(tl.includes('saldo')||tl.includes('favor'))r=u?.reg==='SUELDOS'?'En sueldos el saldo a favor depende de tus deducciones anuales. Ve a "Declaración anual" para calcularlo.':d.isr_ret>0?`Sí — tu cliente empresa retuvo ${fmt(d.isr_ret)} de ISR. Como tu ISR del mes es menor, ese sobrante lo aplico el mes que entra.`:'Este mes no hay saldo a favor de ISR.';
+  else if(tl.includes('deducir')||tl.includes('gasto'))r=u?.reg==='SUELDOS'?'En sueldos puedes deducir: médicos, dentistas, colegiaturas, hipoteca, AFORE y seguro médico. El tope es $202,004 o el 15% de tus ingresos.':u?.reg==='RESICO'?'En RESICO no hay deducciones de gastos de trabajo — solo deducciones personales en la anual: médicos, colegiaturas, hipoteca.':'En honorarios deduces gastos de tu actividad con CFDI: renta de oficina, equipo, internet, telefonía.';
+  else if(tl.includes('exportar')||tl.includes('excel')||tl.includes('csv'))r='Ve a "Mis facturas" y usa los botones de exportar. Tienes CSV y Excel disponibles con todas las facturas del mes.';
+  else if(tl.includes('anual'))r=u?.reg==='SUELDOS'?'Ve a "Declaración anual" en el menú. Ahí calculas cuánto te devuelve el SAT según tus deducciones — y te digo cómo optimizar antes del 31 de diciembre.':'Tu declaración anual es en abril. En enero empezamos a preparar para que llegues sin carreras.';
+  else if(tl.includes('segur')||tl.includes('firma')||tl.includes('datos'))r='Tu e.firma nunca sale de tu dispositivo. Se usa localmente para autenticarse con el SAT. La contraseña de Saúl es independiente — solo sirve para entrar aquí.';
+  addMsg('s',r);
+  busy=false;document.getElementById('cs').disabled=false;inp.focus();
+}
+function envSug(b){document.getElementById('ci').value=b.textContent;envMsg();}
+
+// ── Modal ─────────────────────────────────────────────────────────
+function openModal(){document.getElementById('modal').classList.add('on');}
+function closeModal(){document.getElementById('modal').classList.remove('on');}
+function presentar(){
+  const btn=document.getElementById('btn-pres');btn.textContent='Presentando...';btn.disabled=true;
+  setTimeout(()=>{
+    closeModal();
+    document.getElementById('d-alert').style.opacity='.5';
+    const b=document.getElementById('btn-top');b.textContent='Declarada ✓';b.style.background='var(--vc)';
+    addMsg('s','¡Listo! Tu declaración quedó presentada ante el SAT. Guardé el acuse en tu perfil. Te aviso el próximo mes para hacerlo a tiempo. ¿Tienes alguna otra duda?');
+  },1800);
+}
+
+// ── Navegación ────────────────────────────────────────────────────
+function goSec(id,el){
+  document.querySelectorAll('.dash-section').forEach(s=>s.classList.remove('on'));
+  document.querySelectorAll('.sb-item').forEach(i=>i.classList.remove('active'));
+  document.getElementById('sec-'+id)?.classList.add('on');
+  if(el)el.classList.add('active');
+  const tt={resumen:'Resumen',facturas:'Mis facturas',sueldos:'Declaración anual 2025',historial:'Historial',efirma:'Mi e.firma'};
+  document.getElementById('dash-ttl').textContent=tt[id]||id;
+}
+
+function mostrarPantalla(id){
+  document.querySelectorAll('.screen').forEach(s=>s.classList.remove('on'));
+  document.getElementById('screen-'+id).classList.add('on');
+}
+
+// ── E.firma ───────────────────────────────────────────────────────
+let cerOk=false, keyOk=false;
+let cerData=null, keyData=null;
+
+function cargarCer(input){
+  const file=input.files[0];
+  if(!file)return;
+  if(!file.name.endsWith('.cer')){efAlert('El archivo debe ser .cer','error');return;}
+  const reader=new FileReader();
+  reader.onload=e=>{
+    cerData=e.target.result;
+    cerOk=true;
+    document.getElementById('cer-ic').textContent='✅';
+    document.getElementById('cer-txt').textContent=file.name+' — cargado';
+    document.getElementById('cer-txt').style.color='var(--v)';
+    document.getElementById('drop-cer').style.borderColor='var(--vc)';
+    document.getElementById('drop-cer').style.background='var(--vs)';
+    efAlert('','');
+  };
+  reader.readAsArrayBuffer(file);
+}
+
+function cargarKey(input){
+  const file=input.files[0];
+  if(!file)return;
+  if(!file.name.endsWith('.key')){efAlert('El archivo debe ser .key','error');return;}
+  const reader=new FileReader();
+  reader.onload=e=>{
+    keyData=e.target.result;
+    keyOk=true;
+    document.getElementById('key-ic').textContent='✅';
+    document.getElementById('key-txt').textContent=file.name+' — cargado';
+    document.getElementById('key-txt').style.color='var(--v)';
+    document.getElementById('drop-key').style.borderColor='var(--vc)';
+    document.getElementById('drop-key').style.background='var(--vs)';
+    efAlert('','');
+  };
+  reader.readAsArrayBuffer(file);
+}
+
+function efAlert(msg,tipo){
+  const el=document.getElementById('ef-alert');
+  if(!msg){el.style.display='none';return;}
+  el.style.display='block';
+  el.textContent=msg;
+  el.style.background=tipo==='error'?'var(--rs)':'var(--vs)';
+  el.style.color=tipo==='error'?'var(--r)':'var(--v)';
+}
+
+function conectarEfirma(){
+  if(!cerOk){efAlert('Carga tu archivo .cer primero.','error');return;}
+  if(!keyOk){efAlert('Carga tu archivo .key primero.','error');return;}
+  const pwd=document.getElementById('ef-pwd').value;
+  if(!pwd){efAlert('Ingresa la contraseña de tu e.firma.','error');return;}
+  if(pwd.length<8){efAlert('La contraseña parece muy corta — verifica que sea la correcta.','error');return;}
+
+  const btn=document.getElementById('btn-conectar');
+  btn.textContent='Verificando...';btn.disabled=true;
+
+  // Simular verificación (en producción real llama al backend)
+  setTimeout(()=>{
+    // Extraer RFC del nombre del archivo .cer si es posible
+    const u=getU();
+    const rfc=u?.rfc||'—';
+
+    // Guardar estado de e.firma conectada
+    const db=getDB();
+    if(db[rfc]){db[rfc].efirma_conectada=true;saveDB(db);}
+
+    // Actualizar UI
+    document.getElementById('efirma-estado-no').style.display='none';
+    document.getElementById('efirma-estado-si').style.display='flex';
+    document.getElementById('efirma-rfc-det').textContent=`RFC: ${rfc} · E.firma verificada ✓`;
+    document.getElementById('efirma-badge').style.display='none';
+    btn.textContent='E.firma conectada ✓';
+    btn.style.background='var(--vc)';
+
+    efAlert('¡Listo! Tu e.firma quedó conectada. Saúl ya puede descargar tus facturas del SAT.','success');
+
+    // Notificar en el chat
+    setTimeout(()=>{
+      addMsg('s',`¡Excelente, ${rfc}! Conecté tu e.firma correctamente. Ya puedo descargar tus facturas reales del SAT. ¿Quieres que descargue las de este mes para calcular tu declaración con tus datos reales?`);
+      goSec('resumen');
+    },1200);
+  },2000);
+}
+
+function desconectarEfirma(){
+  cerOk=false;keyOk=false;cerData=null;keyData=null;
+  document.getElementById('efirma-estado-no').style.display='flex';
+  document.getElementById('efirma-estado-si').style.display='none';
+  document.getElementById('efirma-badge').style.display='';
+  document.getElementById('cer-ic').textContent='📄';
+  document.getElementById('cer-txt').textContent='Haz clic para seleccionar tu archivo .cer';
+  document.getElementById('cer-txt').style.color='var(--ts)';
+  document.getElementById('drop-cer').style.borderColor='var(--bo)';
+  document.getElementById('drop-cer').style.background='transparent';
+  document.getElementById('key-ic').textContent='🔑';
+  document.getElementById('key-txt').textContent='Haz clic para seleccionar tu archivo .key';
+  document.getElementById('key-txt').style.color='var(--ts)';
+  document.getElementById('drop-key').style.borderColor='var(--bo)';
+  document.getElementById('drop-key').style.background='transparent';
+  document.getElementById('ef-pwd').value='';
+  document.getElementById('btn-conectar').textContent='Conectar mi e.firma al SAT';
+  document.getElementById('btn-conectar').disabled=false;
+  document.getElementById('btn-conectar').style.background='var(--v)';
+  efAlert('','');
+  const u=getU();const db=getDB();
+  if(db[u?.rfc]){db[u.rfc].efirma_conectada=false;saveDB(db);}
+}
+
+// Drag & drop para los archivos
+['drop-cer','drop-key'].forEach(id=>{
+  const el=document.getElementById(id);
+  if(!el)return;
+  el.addEventListener('dragover',e=>{e.preventDefault();el.style.borderColor='var(--vc)';});
+  el.addEventListener('dragleave',()=>{el.style.borderColor='var(--bo)';});
+  el.addEventListener('drop',e=>{
+    e.preventDefault();
+    const file=e.dataTransfer.files[0];
+    if(!file)return;
+    const inp=document.getElementById(id==='drop-cer'?'inp-cer':'inp-key');
+    const dt=new DataTransfer();dt.items.add(file);inp.files=dt.files;
+    if(id==='drop-cer')cargarCer(inp);else cargarKey(inp);
+  });
+});
+
+// ── Init ──────────────────────────────────────────────────────────
+const uInit=getU();
+if(uInit)entrar(uInit);
+</script>
+</body>
+</html>
