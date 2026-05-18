@@ -1,5 +1,6 @@
 from fastapi import FastAPI, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
+from fastapi.responses import HTMLResponse
 from pydantic import BaseModel
 from typing import Optional
 import anthropic, os
@@ -26,11 +27,15 @@ class RespuestaChat(BaseModel):
 def system_prompt(u):
     return f"""Eres Saúl, asesor fiscal de {u.nombre}. RFC: {u.rfc}. Régimen: {u.regimen}.
 Ingresos acumulados: ${u.ingreso_acumulado:,.0f}. ISR: ${u.isr_neto:,.2f}. IVA: ${u.iva_neto:,.2f}.
-Habla como amigo contador. Sin jerga. Máximo 3 oraciones. Termina con pregunta o acción."""
+Habla como amigo contador mexicano. Sin jerga. Máximo 3 oraciones. Termina con pregunta o acción concreta."""
 
-@app.get("/")
+@app.get("/", response_class=HTMLResponse)
 def root():
-    return {"status": "Saúl API ok", "version": "0.1"}
+    try:
+        with open("saul-app.html", "r", encoding="utf-8") as f:
+            return HTMLResponse(content=f.read())
+    except:
+        return HTMLResponse(content="<h1>Saúl API funcionando</h1>")
 
 @app.post("/chat", response_model=RespuestaChat)
 async def chat(body: MensajeChat):
@@ -39,16 +44,22 @@ async def chat(body: MensajeChat):
     hist = historial_chats[body.rfc]
     hist.append({"role":"user","content":body.mensaje})
     try:
-        resp = cliente.messages.create(model="claude-sonnet-4-6", max_tokens=300, system=system_prompt(body), messages=hist)
+        resp = cliente.messages.create(
+            model="claude-sonnet-4-6",
+            max_tokens=300,
+            system=system_prompt(body),
+            messages=hist
+        )
         texto = resp.content[0].text
         hist.append({"role":"assistant","content":texto})
         if len(hist) > 20:
             historial_chats[body.rfc] = hist[-20:]
     except Exception as e:
-        texto = "Problema de conexión. Intenta de nuevo."
+        texto = f"Problema de conexión: {str(e)[:100]}"
     sugs = ["¿Cuánto llevo acumulado?","¿Tengo saldo a favor?","¿Cuándo es mi anual?"]
     return RespuestaChat(respuesta=texto, sugerencias=sugs)
 
 @app.get("/health")
 def health():
     return {"status":"ok"}
+
