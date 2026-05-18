@@ -898,18 +898,37 @@ async function envMsg(){
   inp.value='';busy=true;document.getElementById('cs').disabled=true;
   addMsg('u',txt);showTyping();
   const u=getU();const d=u?demoD(u.reg):{};
-  await new Promise(r=>setTimeout(r,750));
-  hideTyping();
-  const tl=txt.toLowerCase();
-  let r='Cuando conectes tu RFC al SAT te respondo con tus datos exactos. ¿Quieres revisar tu declaración mientras tanto?';
-  if(tl.includes('acumulado')||tl.includes('llevo'))r=`Llevas ${fmt(d.acum||0)} acumulados este año. ${u?.reg==='SUELDOS'?'Tu declaración es en abril.':'Vas bien, lejos del tope.'}`;
-  else if(tl.includes('venc')||tl.includes('cuándo')||tl.includes('fecha'))r=u?.reg==='SUELDOS'?'Tu declaración anual es en abril. En enero empezamos a preparar todo.':'Tu declaración vence el 17 de cada mes. ¿Quieres que la presentemos hoy?';
-  else if(tl.includes('saldo')||tl.includes('favor'))r=u?.reg==='SUELDOS'?'En sueldos el saldo a favor depende de tus deducciones anuales. Ve a "Declaración anual" para calcularlo.':d.isr_ret>0?`Sí — tu cliente empresa retuvo ${fmt(d.isr_ret)} de ISR. Como tu ISR del mes es menor, ese sobrante lo aplico el mes que entra.`:'Este mes no hay saldo a favor de ISR.';
-  else if(tl.includes('deducir')||tl.includes('gasto'))r=u?.reg==='SUELDOS'?'En sueldos puedes deducir: médicos, dentistas, colegiaturas, hipoteca, AFORE y seguro médico. El tope es $202,004 o el 15% de tus ingresos.':u?.reg==='RESICO'?'En RESICO no hay deducciones de gastos de trabajo — solo deducciones personales en la anual: médicos, colegiaturas, hipoteca.':'En honorarios deduces gastos de tu actividad con CFDI: renta de oficina, equipo, internet, telefonía.';
-  else if(tl.includes('exportar')||tl.includes('excel')||tl.includes('csv'))r='Ve a "Mis facturas" y usa los botones de exportar. Tienes CSV y Excel disponibles con todas las facturas del mes.';
-  else if(tl.includes('anual'))r=u?.reg==='SUELDOS'?'Ve a "Declaración anual" en el menú. Ahí calculas cuánto te devuelve el SAT según tus deducciones — y te digo cómo optimizar antes del 31 de diciembre.':'Tu declaración anual es en abril. En enero empezamos a preparar para que llegues sin carreras.';
-  else if(tl.includes('segur')||tl.includes('firma')||tl.includes('datos'))r='Tu e.firma nunca sale de tu dispositivo. Se usa localmente para autenticarse con el SAT. La contraseña de Saúl es independiente — solo sirve para entrar aquí.';
-  addMsg('s',r);
+  try {
+    const res = await fetch('/chat', {
+      method:'POST',
+      headers:{'Content-Type':'application/json'},
+      body:JSON.stringify({
+        rfc:u?.rfc||'DEMO',
+        mensaje:txt,
+        regimen:u?.reg||'RESICO',
+        nombre:u?.nom||'Usuario',
+        ingreso_acumulado:d.acum||0,
+        isr_neto:d.isr||0,
+        iva_neto:d.iva||0,
+        saldo_favor:0
+      })
+    });
+    hideTyping();
+    if(res.ok){
+      const data=await res.json();
+      addMsg('s',data.respuesta);
+      if(data.sugerencias?.length){
+        document.getElementById('sugs').innerHTML=data.sugerencias.map(s=>`<div class="sug" onclick="envSug(this)">${s}</div>`).join('');
+      }
+    } else { throw new Error('Error servidor'); }
+  } catch(e) {
+    hideTyping();
+    const tl=txt.toLowerCase();
+    let r='Hubo un problema de conexión. Intenta de nuevo.';
+    if(tl.includes('acumulado'))r=`Llevas ${fmt(d.acum||0)} acumulados este año.`;
+    else if(tl.includes('deducir'))r=u?.reg==='SUELDOS'?'En sueldos puedes deducir: médicos, colegiaturas, hipoteca y AFORE.':'En RESICO solo aplican deducciones personales en la anual.';
+    addMsg('s',r);
+  }
   busy=false;document.getElementById('cs').disabled=false;inp.focus();
 }
 function envSug(b){document.getElementById('ci').value=b.textContent;envMsg();}
